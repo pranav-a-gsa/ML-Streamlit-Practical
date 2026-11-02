@@ -27,7 +27,7 @@ st.markdown(
     h2, h3 { color:var(--ink) !important; }
     [data-testid="stCaptionContainer"] { color:var(--muted); }
     [data-testid="stNumberInput"] label { color:#435148; font-size:.92rem; font-weight:500; }
-    [data-testid="stNumberInput"] input { background:#fff; border-color:var(--line); border-radius:6px; }
+    [data-testid="stNumberInput"] input { background:#fff !important; border-color:var(--line); border-radius:6px; color:var(--ink) !important; -webkit-text-fill-color:var(--ink); }
     div.stButton > button { min-height:42px; border-radius:7px; font-weight:600; }
     div.stButton > button[kind="primary"] { background:var(--green); border-color:var(--green); }
     div.stButton > button[kind="primary"]:hover { background:#355b45; border-color:#355b45; }
