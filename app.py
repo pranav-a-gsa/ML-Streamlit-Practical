@@ -15,7 +15,7 @@ SPECIES = {
     "virginica": ("Iris virginica", "The largest of the three species, often with long petals."),
 }
 
-st.set_page_config(page_title="Iris Studio · Flower classifier", page_icon="🌼", layout="wide")
+st.set_page_config(page_title="Iris Flower Prediction", page_icon="🌼", layout="wide")
 
 st.markdown(
     """
@@ -63,6 +63,19 @@ def load_artifact():
     return artifact
 
 
+def predict_species(artifact, measurements: list[float]):
+    """Return the predicted class and probabilities, or show a recoverable error."""
+    try:
+        row = pd.DataFrame([measurements], columns=artifact["features"])
+        model = artifact["model"]
+        prediction = str(model.predict(row)[0]).lower()
+        probabilities = model.predict_proba(row)[0]
+        return prediction, probabilities
+    except Exception as exc:
+        st.error(f"Prediction could not be completed: {exc}")
+        return None
+
+
 st.markdown(
     '<div class="topline"><div class="brand"><span>✳</span> Fieldnotes · ML</div>'
     '<div class="edition">Classification study &nbsp; / &nbsp; 01</div></div>',
@@ -70,7 +83,7 @@ st.markdown(
 )
 
 st.markdown('<p class="eyebrow">A tiny field guide to machine learning</p>', unsafe_allow_html=True)
-st.title("Meet the Iris.")
+st.title("Iris Flower Prediction")
 st.markdown(
     '<p class="lede">Four measurements. Three possibilities. Adjust the flower’s dimensions '
     'and let a Random Forest model identify its species.</p>',
@@ -94,28 +107,27 @@ with left:
         sepal_width = st.number_input("Sepal width", min_value=0.1, max_value=10.0, value=3.5, step=0.1, format="%.1f", help="Width of the green, leaf-like outer part.")
         petal_width = st.number_input("Petal width", min_value=0.1, max_value=10.0, value=0.2, step=0.1, format="%.1f", help="Width of one colored petal.")
     st.markdown('</div>', unsafe_allow_html=True)
-    predict = st.button("Identify this flower  →", use_container_width=True)
+    should_predict = st.button("Identify this flower  →", width="stretch")
 
 with right:
     st.markdown('<p class="eyebrow">Your reading</p>', unsafe_allow_html=True)
     st.markdown('<div class="panel-title">A considered prediction</div><p class="panel-copy">Based on a model trained on the classic Iris dataset.</p>', unsafe_allow_html=True)
-    if predict:
-        row = pd.DataFrame([[sepal_length, sepal_width, petal_length, petal_width]], columns=artifact["features"])
-        model = artifact["model"]
-        prediction = str(model.predict(row)[0]).lower()
-        probabilities = model.predict_proba(row)[0]
-        confidence = float(max(probabilities))
-        name, description = SPECIES.get(prediction, (prediction.title(), "Predicted species."))
-        st.markdown(
-            f'<div class="result"><div class="result-label">Most likely species</div>'
-            f'<div class="result-name">{name}</div><div class="result-copy">{description}</div></div>',
-            unsafe_allow_html=True,
-        )
-        st.progress(confidence, text=f"Model confidence · {confidence:.0%}")
-        with st.expander("See probabilities for all species"):
-            for label, probability in zip(model.classes_, probabilities):
-                st.write(f"{str(label).title()} — {probability:.1%}")
-                st.progress(float(probability))
+    if should_predict:
+        outcome = predict_species(artifact, [sepal_length, sepal_width, petal_length, petal_width])
+        if outcome is not None:
+            prediction, probabilities = outcome
+            confidence = float(max(probabilities))
+            name, description = SPECIES.get(prediction, (prediction.title(), "Predicted species."))
+            st.markdown(
+                f'<div class="result"><div class="result-label">Most likely species</div>'
+                f'<div class="result-name">{name}</div><div class="result-copy">{description}</div></div>',
+                unsafe_allow_html=True,
+            )
+            st.progress(confidence, text=f"Model confidence · {confidence:.0%}")
+            with st.expander("See probabilities for all species"):
+                for label, probability in zip(artifact["classes"], probabilities):
+                    st.write(f"{str(label).title()} — {probability:.1%}")
+                    st.progress(float(probability))
     else:
         st.markdown('<div class="result"><div class="result-label">Ready when you are</div><div class="result-name">🌱</div><div class="result-copy">Enter the four measurements, then identify your flower.</div></div>', unsafe_allow_html=True)
 
@@ -129,5 +141,39 @@ for column, label, value in [
 ]:
     with column:
         st.markdown(f'<div class="metric"><div class="metric-label">{label}</div><div class="metric-value">{value}</div></div>', unsafe_allow_html=True)
+
+with st.expander("Model evaluation details"):
+    evaluation = artifact.get("evaluation", {})
+    report = evaluation.get("classification_report", {})
+    labels = evaluation.get("labels", [])
+    matrix = evaluation.get("confusion_matrix", [])
+    if report and labels and matrix:
+        st.caption("Held-out test set: 30 samples, stratified across all three species.")
+        report_rows = []
+        for label in labels:
+            scores = report.get(label, {})
+            report_rows.append({
+                "Species": str(label).title(),
+                "Precision": scores.get("precision", 0),
+                "Recall": scores.get("recall", 0),
+                "F1 score": scores.get("f1-score", 0),
+                "Support": int(scores.get("support", 0)),
+            })
+        macro = report.get("macro avg", {})
+        report_rows.append({
+            "Species": "Macro average",
+            "Precision": macro.get("precision", 0),
+            "Recall": macro.get("recall", 0),
+            "F1 score": macro.get("f1-score", 0),
+            "Support": int(macro.get("support", 0)),
+        })
+        st.dataframe(pd.DataFrame(report_rows), hide_index=True, width="stretch")
+        st.caption("Confusion matrix · rows are actual species; columns are predicted species.")
+        st.dataframe(
+            pd.DataFrame(matrix, index=[str(v).title() for v in labels], columns=[str(v).title() for v in labels]),
+            width="stretch",
+        )
+    else:
+        st.info("Run `python train.py` to add the evaluation details to the model file.")
 
 st.markdown('<div class="foot">A learning demo using the UCI Iris dataset · Random Forest classifier · Predictions are estimates, not botanical advice.</div>', unsafe_allow_html=True)

@@ -39,6 +39,8 @@ def train_and_evaluate() -> dict[str, object]:
     evaluation_model.fit(X_train, y_train)
     predictions = evaluation_model.predict(X_test)
     accuracy = accuracy_score(y_test, predictions)
+    report = classification_report(y_test, predictions, output_dict=True, zero_division=0)
+    matrix = confusion_matrix(y_test, predictions, labels=sorted(y.unique()))
 
     # Refit on all rows for the production artifact after measuring held-out accuracy.
     model = RandomForestClassifier(
@@ -51,6 +53,11 @@ def train_and_evaluate() -> dict[str, object]:
         "classes": list(model.classes_),
         "accuracy": float(accuracy),
         "dataset_rows": int(len(data)),
+        "evaluation": {
+            "labels": sorted(y.unique()),
+            "confusion_matrix": matrix.tolist(),
+            "classification_report": report,
+        },
     }
     joblib.dump(artifact, MODEL_PATH)
 
