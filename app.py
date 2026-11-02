@@ -20,33 +20,26 @@ st.set_page_config(page_title="Iris Flower Prediction", page_icon="🌼", layout
 st.markdown(
     """
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
-    :root { --ink:#202b24; --muted:#788078; --paper:#f7f7f2; --green:#315e46; --line:#e3e5dc; }
-    .stApp { background:var(--paper); color:var(--ink); font-family:'DM Sans',sans-serif; }
-    .block-container { max-width:1160px; padding-top:2.2rem; padding-bottom:3rem; }
-    [data-testid="stHeader"] { background:transparent; }
-    .topline { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); padding:0 0 18px; margin-bottom:48px; }
-    .brand { font-size:14px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
-    .brand span { color:#799475; font-size:18px; margin-right:9px; }
-    .edition { color:var(--muted); font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase; }
-    .eyebrow { color:var(--green); font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; margin:0 0 15px; }
-    h1 { font-family:'Playfair Display',serif !important; font-size:clamp(42px,6vw,68px) !important; line-height:1.03 !important; letter-spacing:-.04em !important; margin:0 0 18px !important; color:var(--ink) !important; }
-    .lede { color:var(--muted); font-size:16px; line-height:1.7; max-width:540px; margin-bottom:34px; }
-    .panel { background:#fff; border:1px solid var(--line); border-radius:16px; padding:25px 26px 22px; }
-    .panel-title { font-family:'Playfair Display',serif; font-size:22px; margin:0 0 5px; }
-    .panel-copy { color:var(--muted); font-size:13px; margin:0 0 20px; }
-    .metric { background:#fff; border:1px solid var(--line); border-radius:13px; padding:16px 18px; min-height:88px; }
-    .metric-label { color:var(--muted); font-family:'DM Mono',monospace; text-transform:uppercase; letter-spacing:.1em; font-size:10px; }
-    .metric-value { color:var(--ink); font-size:21px; font-weight:600; margin-top:6px; }
-    .result { background:#edf3ec; border:1px solid #dbe7d9; border-radius:14px; padding:20px 22px; margin-top:17px; }
-    .result-label { color:var(--green); font-family:'DM Mono',monospace; text-transform:uppercase; letter-spacing:.1em; font-size:10px; }
-    .result-name { font-family:'Playfair Display',serif; font-size:27px; color:#254832; margin:5px 0; }
-    .result-copy { color:#627266; font-size:13px; }
-    .foot { color:#8a9089; font-size:11px; margin-top:42px; padding-top:16px; border-top:1px solid var(--line); }
-    div.stButton > button { background:var(--green); color:white; border:0; border-radius:9px; height:46px; font-weight:600; }
-    div.stButton > button:hover { background:#254832; color:white; }
-    [data-testid="stNumberInput"] label { color:#59645c; font-size:13px; }
-    @media (max-width:640px) { .block-container { padding:1.4rem 1rem 2rem; } .topline { margin-bottom:34px; } }
+    :root { --ink:#24312a; --muted:#66736b; --paper:#fbfcfb; --green:#426b53; --line:#dfe5e1; }
+    .stApp { background:var(--paper); color:var(--ink); }
+    .block-container { max-width:980px; padding-top:2rem; padding-bottom:2.5rem; }
+    h1 { color:var(--ink) !important; font-size:2.35rem !important; letter-spacing:-.025em !important; margin-bottom:.3rem !important; }
+    h2, h3 { color:var(--ink) !important; }
+    [data-testid="stCaptionContainer"] { color:var(--muted); }
+    [data-testid="stNumberInput"] label { color:#435148; font-size:.92rem; font-weight:500; }
+    [data-testid="stNumberInput"] input { background:#fff; border-color:var(--line); border-radius:6px; }
+    div.stButton > button { min-height:42px; border-radius:7px; font-weight:600; }
+    div.stButton > button[kind="primary"] { background:var(--green); border-color:var(--green); }
+    div.stButton > button[kind="primary"]:hover { background:#355b45; border-color:#355b45; }
+    .result { background:#f1f5f2; border:1px solid var(--line); border-left:4px solid var(--green); border-radius:7px; padding:15px 17px; margin:12px 0; }
+    .result-label { color:var(--muted); font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; }
+    .result-name { color:var(--ink); font-size:22px; font-weight:650; margin:4px 0; }
+    .result-copy { color:#536158; font-size:14px; }
+    .metric { background:#fff; border:1px solid var(--line); border-radius:7px; padding:12px 14px; min-height:76px; }
+    .metric-label { color:var(--muted); font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; }
+    .metric-value { color:var(--ink); font-size:19px; font-weight:600; margin-top:5px; }
+    .foot { color:var(--muted); font-size:12px; margin-top:28px; padding-top:14px; border-top:1px solid var(--line); }
+    @media (max-width:640px) { .block-container { padding:1.25rem 1rem 2rem; } h1 { font-size:1.9rem !important; } }
     </style>
     """,
     unsafe_allow_html=True,
@@ -76,19 +69,8 @@ def predict_species(artifact, measurements: list[float]):
         return None
 
 
-st.markdown(
-    '<div class="topline"><div class="brand"><span>✳</span> Fieldnotes · ML</div>'
-    '<div class="edition">Classification study &nbsp; / &nbsp; 01</div></div>',
-    unsafe_allow_html=True,
-)
-
-st.markdown('<p class="eyebrow">A tiny field guide to machine learning</p>', unsafe_allow_html=True)
 st.title("Iris Flower Prediction")
-st.markdown(
-    '<p class="lede">Four measurements. Three possibilities. Adjust the flower’s dimensions '
-    'and let a Random Forest model identify its species.</p>',
-    unsafe_allow_html=True,
-)
+st.caption("Enter the flower measurements in centimeters and select Predict.")
 
 try:
     artifact = load_artifact()
@@ -98,7 +80,8 @@ except (FileNotFoundError, ValueError, OSError) as exc:
 
 left, right = st.columns([1.05, 0.95], gap="large")
 with left:
-    st.markdown('<div class="panel"><p class="panel-title">Flower measurements</p><p class="panel-copy">Enter dimensions in centimeters</p>', unsafe_allow_html=True)
+    st.subheader("Flower measurements")
+    st.caption("Use the four sepal and petal dimensions below.")
     c1, c2 = st.columns(2)
     with c1:
         sepal_length = st.number_input("Sepal length", min_value=0.1, max_value=10.0, value=5.1, step=0.1, format="%.1f", help="Length of the green, leaf-like outer part.")
@@ -106,12 +89,11 @@ with left:
     with c2:
         sepal_width = st.number_input("Sepal width", min_value=0.1, max_value=10.0, value=3.5, step=0.1, format="%.1f", help="Width of the green, leaf-like outer part.")
         petal_width = st.number_input("Petal width", min_value=0.1, max_value=10.0, value=0.2, step=0.1, format="%.1f", help="Width of one colored petal.")
-    st.markdown('</div>', unsafe_allow_html=True)
-    should_predict = st.button("Identify this flower  →", width="stretch")
+    should_predict = st.button("Predict", type="primary", width="stretch")
 
 with right:
-    st.markdown('<p class="eyebrow">Your reading</p>', unsafe_allow_html=True)
-    st.markdown('<div class="panel-title">A considered prediction</div><p class="panel-copy">Based on a model trained on the classic Iris dataset.</p>', unsafe_allow_html=True)
+    st.subheader("Prediction")
+    st.caption("Predicted species and model confidence appear here.")
     if should_predict:
         outcome = predict_species(artifact, [sepal_length, sepal_width, petal_length, petal_width])
         if outcome is not None:
@@ -129,7 +111,7 @@ with right:
                     st.write(f"{str(label).title()} — {probability:.1%}")
                     st.progress(float(probability))
     else:
-        st.markdown('<div class="result"><div class="result-label">Ready when you are</div><div class="result-name">🌱</div><div class="result-copy">Enter the four measurements, then identify your flower.</div></div>', unsafe_allow_html=True)
+        st.markdown('<div class="result"><div class="result-label">Ready to predict</div><div class="result-copy">Enter the measurements and select Predict.</div></div>', unsafe_allow_html=True)
 
 accuracy = float(artifact.get("accuracy", 0))
 rows = int(artifact.get("dataset_rows", 150))
@@ -176,4 +158,4 @@ with st.expander("Model evaluation details"):
     else:
         st.info("Run `python train.py` to add the evaluation details to the model file.")
 
-st.markdown('<div class="foot">A learning demo using the UCI Iris dataset · Random Forest classifier · Predictions are estimates, not botanical advice.</div>', unsafe_allow_html=True)
+st.markdown('<div class="foot">Iris dataset · Random Forest classifier · Use predictions as a learning demonstration.</div>', unsafe_allow_html=True)
